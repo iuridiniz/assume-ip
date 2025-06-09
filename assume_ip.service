@@ -1,0 +1,14 @@
+[Unit]
+Description=MAC Address IP Monitor Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+EnvironmentFile=/etc/default/assume_ip
+ExecStart=/root/assume_ip.sh --log-level INFO
+Restart=on-failure
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target

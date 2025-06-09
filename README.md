@@ -31,11 +31,11 @@ sudo dnf install arp-scan
    ```sh
    git clone https://github.com/iuridiniz/assume-ip.git
    ```
-2. Edit `assume_ip.env` to set your target MAC, IP, and interface.
-3. Copy your `assume_ip.env` to `/etc/default/assume_ip`:
+2. Copy your `assume_ip.env` to `/etc/default/assume_ip`:
    ```sh
    sudo cp assume_ip.env /etc/default/assume_ip
    ```
+3. Edit `/etc/default/assume_ip` to set your target MAC, IP, and interface.
 4. Copy the script to a suitable location, e.g., `/root/assume_ip.sh`:
    ```sh
    sudo cp assume_ip.sh /root/assume_ip.sh

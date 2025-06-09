@@ -67,6 +67,7 @@ log_message() {
 }
 
 # Function to display usage information
+# ...existing code...
 display_usage() {
   echo "Usage: $0 [OPTIONS]"
   echo "Monitors for a specific MAC address and manages an IP address on an interface."
@@ -95,10 +96,19 @@ display_usage() {
   echo "  LOG_LEVEL"
   echo ""
   echo "Examples:"
-  echo "  $0 -m 00:11:22:33:44:55 -i 192.168.1.100 -n eth0"
-  echo "  TARGET_MAC=AA:BB:CC:DD:EE:FF $0 --once --log-level DEBUG"
-  echo "  $0 -m 00:16:3e:c9:94:4f --dry-run -q --omit-datetime"
+  echo "  # Basic usage with all required arguments:"
+  echo "  sudo $0 -m 00:11:22:33:44:55 -i 192.168.1.100 -n eth0"
+  echo ""
+  echo "  # Using environment variables for configuration:"
+  echo "  sudo TARGET_MAC=AA:BB:CC:DD:EE:FF TARGET_IP=192.168.1.200 INTERFACE=eth1 $0"
+  echo ""
+  echo "  # Run once in dry-run mode, with custom scan interval and log level:"
+  echo "  sudo $0 -m 00:16:3e:c9:94:4f -i 192.168.1.7 -n eth0 --dry-run --once --log-level DEBUG -s 5"
+  echo ""
+  echo "  # Quiet mode, omitting datetime in logs:"
+  echo "  sudo $0 -m 00:16:3e:c9:94:4f -i 192.168.1.7 -n eth0 -q --omit-datetime"
 }
+# ...existing code...
 
 # --- Argument Parsing ---
 # Set default values from script defaults
@@ -322,7 +332,6 @@ if [ "$(id -u)" -eq 0 ]; then
   log_message "Script is running as root. This is required for network configuration commands." "INFO" true
 else
   log_message "This script must be run as root. Please run with 'sudo $0 ...'." "ERROR" true
-  exit 1
 fi
 
 # Execute the main function

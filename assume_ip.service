@@ -9,6 +9,7 @@ ExecStart=/root/assume_ip.sh --omit-datetime
 Restart=on-failure
 User=root
 Group=root
+Nice=19
 
 [Install]
 WantedBy=multi-user.target

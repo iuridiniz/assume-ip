@@ -25,20 +25,33 @@ On Fedora/RHEL/CentOS:
 sudo dnf install arp-scan
 ```
 
-### Setup
+### Systemd Setup
 
-1. Clone or copy the repository files to your server.
-2. Edit `assume_ip.env` (or `/etc/default/assume_ip`) to set your target MAC, IP, and interface.
-3. Make the script executable:
+1. Clone the repository or download the script files:
+   ```sh
+   git clone https://github.com/iuridiniz/assume-ip.git
+   ```
+2. Edit `assume_ip.env` to set your target MAC, IP, and interface.
+3. Copy your `assume_ip.env` to `/etc/default/assume_ip`:
+   ```sh
+   sudo cp assume_ip.env /etc/default/assume_ip
+   ```
+4. Copy the script to a suitable location, e.g., `/root/assume_ip.sh`:
+   ```sh
+   sudo cp assume_ip.sh /root/assume_ip.sh
+   ```
+5. Make the script executable:
    ```sh
    chmod +x /root/assume_ip.sh
    ```
-4. (Optional) Install the systemd service:
+6. Install the systemd service:
    ```sh
    sudo cp assume_ip.service /etc/systemd/system/
    sudo systemctl daemon-reload
    sudo systemctl enable --now assume_ip.service
    ```
+   > **Note:** The default systemd service expects the script at `/root/assume_ip.sh`.  
+   > If you want to use a different location, edit the `assume_ip.service` file and update the `ExecStart` path accordingly.
 
 ## Usage Instructions
 
@@ -58,6 +71,7 @@ sudo ./assume_ip.sh [OPTIONS]
 - `--once`: Run one scan and exit.
 - `-q, --quiet`: Suppress non-critical output.
 - `--log-level <LEVEL>`: Set minimum logging level (`DEBUG`, `INFO`, `WARN`, `ERROR`).
+- `--omit-datetime`: Omit datetime prefix from log messages.
 - `-h, --help`: Show help.
 
 You can also set environment variables: `TARGET_MAC`, `TARGET_IP`, `INTERFACE`, `SCAN_INTERVAL_SECONDS`, `LOG_LEVEL`.
@@ -83,7 +97,8 @@ GitHub: [https://github.com/iuridiniz](https://github.com/iuridiniz)
 ## Additional Information
 
 - The script must be run as root to manage network interfaces.
-- The systemd service expects configuration in `/etc/default/assume_ip`.
+- The systemd service expects configuration in `/etc/default/assume_ip` and the script at `/root/assume_ip.sh` by default.
+  If you move the script, update the `ExecStart` path in the service file.
 
 ## Examples
 

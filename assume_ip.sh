@@ -25,6 +25,7 @@ SCAN_INTERVAL_SECONDS=""
 DRY_RUN=false
 RUN_ONCE=false
 QUIET_MODE=false # Quiet mode will override log level setting for non-critical messages
+OMIT_DATETIME=false # New: Flag to omit datetime from logs. Default: false (datetime enabled)
 MIN_LOG_LEVEL_NUM=1 # Default to INFO (see log_level_to_num mapping below)
 
 # Define the full path to arp-scan as it's often in /usr/sbin, not typically in a regular user's PATH.
@@ -55,12 +56,17 @@ log_message() {
 
   local msg_level_num=$(get_log_level_num "$msg_level_str")
 
+  local datetime_prefix=""
+  if [ "$OMIT_DATETIME" = false ]; then
+    datetime_prefix="$(date +'%Y-%m-%d %H:%M:%S') - "
+  fi
+
   if $is_critical; then
     # Critical messages always go to stderr
-    echo "$(date +'%Y-%m-%d %H:%M:%S') - CRITICAL - $message" >&2
+    echo "${datetime_prefix}CRITICAL - $message" >&2
   elif ! $QUIET_MODE && (( msg_level_num >= MIN_LOG_LEVEL_NUM )); then
     # Non-critical messages go to stdout, only if not in quiet mode AND level is high enough
-    echo "$(date +'%Y-%m-%d %H:%M:%S') - $(echo "$msg_level_str" | tr '[:lower:]' '[:upper:]') - $message"
+    echo "${datetime_prefix}$(echo "$msg_level_str" | tr '[:lower:]' '[:upper:]') - $message"
   fi
 }
 
@@ -82,6 +88,7 @@ display_usage() {
   echo "  --once             Run the script only once, then exit."
   echo "  -q, --quiet        Enable quiet mode. Suppresses all script output except errors."
   echo "  --log-level <LEVEL> Set minimum logging level (DEBUG, INFO, WARN, ERROR). Default: INFO"
+  echo "  --omit-datetime    Omit datetime prefix from log messages. (Default: disabled)"
   echo "  -h, --help         Display this help message and exit."
   echo ""
   echo "Environment Variables (lower precedence than command-line arguments):"
@@ -94,7 +101,7 @@ display_usage() {
   echo "Examples:"
   echo "  $0 -m 00:11:22:33:44:55 -i 192.168.1.100 -n eth0"
   echo "  TARGET_MAC=AA:BB:CC:DD:EE:FF $0 --once --log-level DEBUG"
-  echo "  $0 -m 00:16:3e:c9:94:4f --dry-run -q"
+  echo "  $0 -m 00:16:3e:c9:94:4f --dry-run -q --omit-datetime"
 }
 
 # --- Argument Parsing ---
@@ -177,6 +184,10 @@ while (( "$#" )); do
       QUIET_MODE=true
       shift
       ;;
+    --omit-datetime) # New: Omit datetime option
+      OMIT_DATETIME=true
+      shift
+      ;;
     -h|--help)
       display_usage
       exit 0
@@ -244,8 +255,8 @@ check_mac_presence() {
 
 # Adds the target IP to the interface
 add_ip() {
-  # Check if the IP is already present.
-  # We check ip addr show output for the specific IP.
+  # Check if the IP is already present. ip addr show will return 0 even if it doesn't find the IP
+  # if the interface exists, so we need to grep for the IP specifically.
   if ! ip addr show "$INTERFACE" | grep -q "inet $TARGET_IP/"; then
     log_message "IP $TARGET_IP not present on interface $INTERFACE." "DEBUG"
     if $DRY_RUN; then

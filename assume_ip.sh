@@ -9,19 +9,15 @@ set -o pipefail
 
 # set -x # Uncomment for full bash debugging (very verbose)
 
-# Default Configuration
-# These can be overridden by environment variables or command-line arguments.
-DEFAULT_TARGET_MAC="00:16:3e:c9:94:4f"
-DEFAULT_TARGET_IP="192.168.1.7"
-DEFAULT_INTERFACE="ens3" # Common default for modern systems
-DEFAULT_SCAN_INTERVAL_SECONDS=5 # Scan interval in seconds for loop mode
-DEFAULT_LOG_LEVEL="INFO" # Default logging level
+DEFAULT_SCAN_INTERVAL_SECONDS=10 # Default scan interval in seconds
+DEFAULT_LOG_LEVEL="INFO" # Default log level
 
 # Variables to hold final configuration
-TARGET_MAC=""
-TARGET_IP=""
-INTERFACE=""
-SCAN_INTERVAL_SECONDS=""
+#TARGET_MAC=""
+#TARGET_IP=""
+#INTERFACE=""
+#SCAN_INTERVAL_SECONDS=""
+#LOG_LEVEL=""
 DRY_RUN=false
 RUN_ONCE=false
 QUIET_MODE=false # Quiet mode will override log level setting for non-critical messages
@@ -87,7 +83,7 @@ display_usage() {
   echo "  --dry-run          Enable dry-run mode. Commands will be logged but not executed."
   echo "  --once             Run the script only once, then exit."
   echo "  -q, --quiet        Enable quiet mode. Suppresses all script output except errors."
-  echo "  --log-level <LEVEL> Set minimum logging level (DEBUG, INFO, WARN, ERROR). Default: INFO"
+  echo "  --log-level <LEVEL> Set minimum logging level (DEBUG, INFO, WARN, ERROR). Default: $DEFAULT_LOG_LEVEL"
   echo "  --omit-datetime    Omit datetime prefix from log messages. (Default: disabled)"
   echo "  -h, --help         Display this help message and exit."
   echo ""
@@ -106,18 +102,11 @@ display_usage() {
 
 # --- Argument Parsing ---
 # Set default values from script defaults
-TARGET_MAC="$DEFAULT_TARGET_MAC"
-TARGET_IP="$DEFAULT_TARGET_IP"
-INTERFACE="$DEFAULT_INTERFACE"
-SCAN_INTERVAL_SECONDS="$DEFAULT_SCAN_INTERVAL_SECONDS"
-LOG_LEVEL="$DEFAULT_LOG_LEVEL"
-
-# Override with environment variables if set
-[ -n "$TARGET_MAC" ] && TARGET_MAC="$TARGET_MAC"
-[ -n "$TARGET_IP" ] && TARGET_IP="$TARGET_IP"
-[ -n "$INTERFACE" ] && INTERFACE="$INTERFACE"
-[ -n "$SCAN_INTERVAL_SECONDS" ] && SCAN_INTERVAL_SECONDS="$SCAN_INTERVAL_SECONDS"
-[ -n "$LOG_LEVEL" ] && LOG_LEVEL="$LOG_LEVEL"
+TARGET_MAC="${TARGET_MAC:-}"
+TARGET_IP="${TARGET_IP:-}"
+INTERFACE="${INTERFACE:-}"
+SCAN_INTERVAL_SECONDS="${SCAN_INTERVAL_SECONDS:-$DEFAULT_SCAN_INTERVAL_SECONDS}"
+LOG_LEVEL="${LOG_LEVEL:-$DEFAULT_LOG_LEVEL}"
 
 # Parse command-line arguments
 while (( "$#" )); do
